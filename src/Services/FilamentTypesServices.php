@@ -3,13 +3,12 @@
 namespace TomatoPHP\FilamentTypes\Services;
 
 use Illuminate\Support\Collection;
-use TomatoPHP\FilamentTypes\Services\Contracts\TypeFor;
 
 class FilamentTypesServices
 {
     protected array $types = [];
 
-    public function register(TypeFor | array $types): void
+    public function register($types): void
     {
         if (is_array($types)) {
             foreach ($types as $type) {
