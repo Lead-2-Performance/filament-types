@@ -13,10 +13,10 @@ use Filament\Pages\Page;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
 use TomatoPHP\FilamentIcons\Components\IconPicker;
 use TomatoPHP\FilamentTranslationComponent\Components\Translation;
 use TomatoPHP\FilamentTypes\Components\TypeColumn;
-use TomatoPHP\FilamentTypes\Models\Type;
 
 class BaseTypePage extends Page implements HasForms, HasTable
 {
@@ -35,6 +35,12 @@ class BaseTypePage extends Page implements HasForms, HasTable
     public function getBackUrl()
     {
         return url()->previous();
+    }
+
+    private function getTypeModel(): string
+    {
+        $model = config('filament-types.model') ?? \TomatoPHP\FilamentTypes\Models\Type::class;
+        return $model;
     }
 
     protected function getHeaderActions(): array
@@ -63,7 +69,8 @@ class BaseTypePage extends Page implements HasForms, HasTable
                 ->action(function (array $data) {
                     $data['for'] = $this->getFor();
                     $data['type'] = $this->getType();
-                    Type::create($data);
+                    $model = $this->getTypeModel();
+                    $model::create($data);
 
                     Notification::make()
                         ->title(trans('filament-types::messages.notification.create.title'))
@@ -73,7 +80,7 @@ class BaseTypePage extends Page implements HasForms, HasTable
                 }),
             Action::make('back')
                 ->label(trans('filament-types::messages.back'))
-                ->url(fn () => $this->getBackUrl())
+                ->url(fn() => $this->getBackUrl())
                 ->color('warning')
                 ->icon('heroicon-s-arrow-left'),
         ];
@@ -100,8 +107,10 @@ class BaseTypePage extends Page implements HasForms, HasTable
 
     public function mount(): void
     {
+        $model = $this->getTypeModel();
+
         foreach ($this->getTypes() as $type) {
-            $exists = Type::query()
+            $exists = $model::query()
                 ->where('for', $this->getFor())
                 ->where('type', $this->getType())
                 ->where('key', $type->key)
@@ -114,7 +123,7 @@ class BaseTypePage extends Page implements HasForms, HasTable
                         app()->getLocale() => $type->name,
                     ];
                 }
-                Type::create($type->toArray());
+                $model::create($type->toArray());
             }
         }
     }
@@ -131,10 +140,11 @@ class BaseTypePage extends Page implements HasForms, HasTable
 
     public function table(Table $table): Table
     {
+        $model = $this->getTypeModel();
         return $table
             ->deferLoading()
             ->query(
-                Type::query()
+                $model::query()
                     ->where('for', $this->getFor())
                     ->where('type', $this->getType())
             )
@@ -190,10 +200,10 @@ class BaseTypePage extends Page implements HasForms, HasTable
                                     ->send();
                             }),
                     ])
-                    ->fillForm(fn ($record) => $record->toArray())
+                    ->fillForm(fn($record) => $record->toArray())
                     ->icon('heroicon-s-pencil-square')
                     ->iconButton()
-                    ->action(function (array $data, Type $type) {
+                    ->action(function (array $data, Model $type) {
                         $type->update($data);
                         Notification::make()
                             ->title(trans('filament-types::messages.notification.edit.title'))

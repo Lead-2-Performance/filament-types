@@ -4,16 +4,16 @@ namespace TomatoPHP\FilamentTypes\Filament\Resources\TypeResource\Actions\Compon
 
 use Filament\Actions;
 use Filament\Notifications\Notification;
-use TomatoPHP\FilamentTypes\Models\Type;
 
 class CreateAction extends Action
 {
     public static function make(): Actions\Action
     {
+        $model = config('filament-types.model') ?? \TomatoPHP\FilamentTypes\Models\Type::class;
         return Actions\CreateAction::make()
             ->label(trans('filament-types::messages.create'))
-            ->using(function (array $data) {
-                $checkExistsType = Type::query()
+            ->using(function (array $data) use ($model) {
+                $checkExistsType = $model::query()
                     ->where('key', $data['key'])
                     ->where('for', $data['for'])
                     ->where('type', $data['type'])
@@ -26,9 +26,8 @@ class CreateAction extends Action
                         ->send();
 
                     return $checkExistsType;
-
                 } else {
-                    $type = Type::create($data);
+                    $type = $model::create($data);
 
                     Notification::make()
                         ->title(trans('filament-types::messages.success'))

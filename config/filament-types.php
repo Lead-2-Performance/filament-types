@@ -44,4 +44,6 @@ return [
             'en' => 'English',
         ],
     ],
+
+    'model' => \TomatoPHP\FilamentTypes\Models\Type::class
 ];

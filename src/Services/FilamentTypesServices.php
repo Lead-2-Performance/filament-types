@@ -3,7 +3,6 @@
 namespace TomatoPHP\FilamentTypes\Services;
 
 use Illuminate\Support\Collection;
-use TomatoPHP\FilamentTypes\Models\Type;
 use TomatoPHP\FilamentTypes\Services\Contracts\TypeFor;
 
 class FilamentTypesServices
@@ -23,27 +22,28 @@ class FilamentTypesServices
 
     public function get(): Collection
     {
+        $model = config('filament-types.model') ?? \TomatoPHP\FilamentTypes\Models\Type::class;
         return collect($this->types)
             ->merge(filament('filament-types')->getTypes())
-            ->groupBy(fn ($typeFor) => $typeFor->for) // Group by `for` attribute
-            ->map(function ($group) {
+            ->groupBy(fn($typeFor) => $typeFor->for) // Group by `for` attribute
+            ->map(function ($group) use ($model) {
                 return $group
-                    ->groupBy(fn ($typeFor) => $typeFor->for) // Group by `label` within each `for` group
-                    ->map(function ($labelGroup) {
-                        $mergedTypes = $labelGroup->flatMap(fn ($typeFor) => $typeFor->types)
-                            ->map(function ($getType) use ($labelGroup) {
+                    ->groupBy(fn($typeFor) => $typeFor->for) // Group by `label` within each `for` group
+                    ->map(function ($labelGroup) use ($model) {
+                        $mergedTypes = $labelGroup->flatMap(fn($typeFor) => $typeFor->types)
+                            ->map(function ($getType) use ($labelGroup, $model) {
                                 $getType->label = ! $getType->label ? str($getType->type)->title()->toString() : $getType->label;
 
                                 if (is_array($getType->types) && count($getType->types)) {
                                     foreach ($getType->types as $typeItem) {
-                                        $checkExists = Type::query()
+                                        $checkExists = $model::query()
                                             ->where('key', $typeItem->key)
                                             ->where('type', $getType->type)
                                             ->where('for', $labelGroup->first()->for)
                                             ->first();
 
                                         if (! $checkExists) {
-                                            Type::query()->create([
+                                            $model::query()->create([
                                                 'key' => $typeItem->key,
                                                 'type' => $getType->type,
                                                 'icon' => $typeItem->icon,

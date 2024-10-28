@@ -1,7 +1,7 @@
-@php use TomatoPHP\FilamentTypes\Models\Type; @endphp
 <x-filament-panels::page>
     @php
-        $type = Type::query()->create([
+        $model = config('filament-types.model') ?? \TomatoPHP\FilamentTypes\Models\Type::class;
+        $type = $model::query()->create([
             'order' => 1,
             'for' => 'notes',
             'name' => 'TODO',
@@ -10,8 +10,8 @@
             'description' => 'TODO',
             'color' => '#1461e3',
             'icon' => 'heroicon-o-list-bullet',
-        ])
+        ]);
     @endphp
 
-    <x-tomato-type :type="$type" label="Group"/>
+    <x-tomato-type :type="$type" label="Group" />
 </x-filament-panels::page>

@@ -2,6 +2,7 @@
 
 namespace TomatoPHP\FilamentTypes\Components;
 
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\View\Component;
 
 class Type extends Component
@@ -15,7 +16,7 @@ class Type extends Component
     public bool $iconExists = false;
 
     public function __construct(
-        public \TomatoPHP\FilamentTypes\Models\Type $type,
+        public Model $type,
         public ?string $label = null,
     ) {
         [$this->r, $this->g, $this->b] = sscanf($this->type->color, '#%02x%02x%02x');

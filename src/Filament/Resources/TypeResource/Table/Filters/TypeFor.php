@@ -6,12 +6,12 @@ use Filament\Forms;
 use Filament\Tables;
 use Illuminate\Database\Eloquent\Builder;
 use TomatoPHP\FilamentTypes\Facades\FilamentTypes;
-use TomatoPHP\FilamentTypes\Models\Type;
 
 class TypeFor extends Filter
 {
     public static function make(): \Filament\Tables\Filters\BaseFilter
     {
+        $model = config('filament-types.model') ?? \TomatoPHP\FilamentTypes\Models\Type::class;
         return Tables\Filters\Filter::make('for')
             ->form([
                 Forms\Components\Select::make('for')
@@ -26,12 +26,12 @@ class TypeFor extends Filter
                     ->live(),
                 Forms\Components\Select::make('type')
                     ->label(trans('filament-types::messages.form.type'))
-                    ->options(fn (Forms\Get $get) => $get('for') ? collect(FilamentTypes::get()->where('for', $get('for'))->first()?->types)->pluck('label', 'type')->toArray() : [])
+                    ->options(fn(Forms\Get $get) => $get('for') ? collect(FilamentTypes::get()->where('for', $get('for'))->first()?->types)->pluck('label', 'type')->toArray() : [])
                     ->searchable(),
                 Forms\Components\Select::make('parent_id')
                     ->label(trans('filament-types::messages.form.parent_id'))
                     ->options(
-                        fn (Forms\Get $get) => Type::whereNull('parent_id')
+                        fn(Forms\Get $get) => $model::whereNull('parent_id')
                             ->where('for', $get('for'))
                             ->where('type', $get('type'))
                             ->get()

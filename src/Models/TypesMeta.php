@@ -32,6 +32,7 @@ class TypesMeta extends CachedModel
      */
     public function type()
     {
-        return $this->belongsTo('TomatoPHP\FilamentTypes\Models\Type');
+        $model = config('filament-types.model') ?? \TomatoPHP\FilamentTypes\Models\Type::class;
+        return $this->belongsTo($model);
     }
 }

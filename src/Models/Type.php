@@ -46,11 +46,13 @@ class Type extends CachedModel implements HasMedia
      */
     public function typables()
     {
-        return $this->hasMany('TomatoPHP\FilamentTypes\Models\Type');
+        $model = config('filament-types.model') ?? \TomatoPHP\FilamentTypes\Models\Type::class;
+        return $this->hasMany($model);
     }
 
     public function parent()
     {
-        return $this->belongsTo('TomatoPHP\FilamentTypes\Models\Type', 'parent_id');
+        $model = config('filament-types.model') ?? \TomatoPHP\FilamentTypes\Models\Type::class;
+        return $this->belongsTo($model, 'parent_id');
     }
 }

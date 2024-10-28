@@ -8,13 +8,19 @@ use Filament\Resources\Resource;
 use Filament\Tables\Table;
 use TomatoPHP\FilamentTypes\Filament\Resources\TypeResource\Form\TypeForm;
 use TomatoPHP\FilamentTypes\Filament\Resources\TypeResource\Table\TypeTable;
-use TomatoPHP\FilamentTypes\Models\Type;
+
 
 class TypeResource extends Resource
 {
     use Translatable;
 
-    protected static ?string $model = Type::class;
+    public static function getModel(): string
+    {
+        $model = config('filament-types.model') ?? \TomatoPHP\FilamentTypes\Models\Type::class;
+        return $model ?? (string) str(class_basename(static::class))
+            ->beforeLast('Resource')
+            ->prepend('App\\Models\\');
+    }
 
     protected static ?string $navigationIcon = 'heroicon-o-tag';
 
